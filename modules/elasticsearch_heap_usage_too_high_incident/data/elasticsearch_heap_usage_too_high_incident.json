@@ -1,0 +1,170 @@
+{
+  "name": "elasticsearch_heap_usage_too_high_incident",
+  "description": "An Elasticsearch Heap Usage Too High Incident is an issue where the Elasticsearch instance experiences high heap usage, which can lead to performance degradation or system failure. This incident is triggered when the heap usage crosses a predefined threshold, usually set at 80% of the allocated heap size. The incident requires immediate attention from the responsible team to investigate and resolve the root cause of the issue, which could be related to memory leaks, indexing issues, or insufficient heap size allocation.",
+  "params": [
+    {
+      "name": "PATH_TO_ELASTICSEARCH_CONFIG_FILE",
+      "value": ""
+    },
+    {
+      "name": "ELASTICSEARCH_INSTANCE_URL",
+      "value": ""
+    },
+    {
+      "name": "NEW_HEAP_SIZE_IN_MB",
+      "value": ""
+    },
+    {
+      "name": "EXPECTED_HEAP_SIZE",
+      "value": ""
+    },
+    {
+      "name": "ELASTICSEARCH_HOST",
+      "value": ""
+    },
+    {
+      "name": "ELASTICSEARCH_PORT",
+      "value": ""
+    },
+    {
+      "name": "HOST_NAME",
+      "value": ""
+    },
+    {
+      "name": "K8S_CLUSTER_NAME",
+      "value": ""
+    },
+    {
+      "name": "NAMESPACE",
+      "value": ""
+    }
+  ],
+  "cells": [
+    {
+      "name": "cell_1",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Elasticsearch Heap Usage Too High Incident\nAn Elasticsearch Heap Usage Too High Incident is an issue where the Elasticsearch instance experiences high heap usage, which can lead to performance degradation or system failure. This incident is triggered when the heap usage crosses a predefined threshold, usually set at 80% of the allocated heap size. The incident requires immediate attention from the responsible team to investigate and resolve the root cause of the issue, which could be related to memory leaks, indexing issues, or insufficient heap size allocation."
+    },
+    {
+      "name": "cell_2",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check Elasticsearch service status"
+    },
+    {
+      "name": "cell_3",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `systemctl status elasticsearch`"
+    },
+    {
+      "name": "cell_4",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check Elasticsearch logs for any errors"
+    },
+    {
+      "name": "cell_5",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `journalctl -u elasticsearch | tail`"
+    },
+    {
+      "name": "cell_6",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check Elasticsearch heap usage"
+    },
+    {
+      "name": "cell_7",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `curl -X GET \"localhost:9200/_nodes/stats/jvm?pretty\"`"
+    },
+    {
+      "name": "cell_8",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check Elasticsearch cluster health"
+    },
+    {
+      "name": "cell_9",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `curl -X GET \"localhost:9200/_cluster/health?pretty\"`"
+    },
+    {
+      "name": "cell_10",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check system memory usage"
+    },
+    {
+      "name": "cell_11",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `free -m`"
+    },
+    {
+      "name": "cell_12",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check disk usage"
+    },
+    {
+      "name": "cell_13",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `df -h`"
+    },
+    {
+      "name": "cell_14",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check CPU usage"
+    },
+    {
+      "name": "cell_15",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `top`"
+    },
+    {
+      "name": "cell_16",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Large volume of data being indexed at a high rate causing heap memory usage to increase beyond the limit."
+    },
+    {
+      "name": "cell_17",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_elasticsearch_heap_check($ELASTICSEARCH_INSTANCE_URL)"
+    },
+    {
+      "name": "cell_18",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Misconfigured Elasticsearch JVM heap size, leading to insufficient memory allocation."
+    },
+    {
+      "name": "cell_19",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_elasticsearch_heap_size_check($EXPECTED_HEAP_SIZE, $ELASTICSEARCH_HOST, $ELASTICSEARCH_PORT)"
+    },
+    {
+      "name": "cell_20",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Increase the heap size of Elasticsearch to accommodate the increased usage."
+    },
+    {
+      "name": "cell_21",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_update_heap_size($PATH_TO_ELASTICSEARCH_CONFIG_FILE, $NEW_HEAP_SIZE_IN_MB)"
+    }
+  ]
+}
